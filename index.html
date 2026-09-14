@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Libretas — apuntes personales</title>
+<meta name="description" content="Cuadernos de apuntes personales, guardados solo en tu navegador." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%233B6E68%22/><rect x=%2230%22 y=%2222%22 width=%228%22 height=%2256%22 fill=%22%23F2E6C9%22/><rect x=%2246%22 y=%2230%22 width=%2226%22 height=%226%22 fill=%22%23FAF7F1%22/><rect x=%2246%22 y=%2244%22 width=%2226%22 height=%226%22 fill=%22%23FAF7F1%22/><rect x=%2246%22 y=%2258%22 width=%2218%22 height=%226%22 fill=%22%23FAF7F1%22/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ESTANTE: lista de cuadernos -->
+  <aside class="shelf" aria-label="Cuadernos">
+    <div class="shelf-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">Libretas</span>
+      </div>
+      <button class="icon-btn" id="btn-new-notebook" title="Nuevo cuaderno" aria-label="Nuevo cuaderno">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" class="search-icon"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="global-search" placeholder="Buscar en todas las notas…" autocomplete="off" />
+    </div>
+
+    <nav class="notebook-list" id="notebook-list" aria-label="Lista de cuadernos"></nav>
+
+    <div class="shelf-footer">
+      <button class="text-btn" id="btn-export">Exportar copia</button>
+      <button class="text-btn" id="btn-import">Importar copia</button>
+      <input type="file" id="import-input" accept="application/json" hidden />
+    </div>
+  </aside>
+
+  <!-- LISTA: notas del cuaderno seleccionado, o resultados de búsqueda -->
+  <section class="notes-pane" aria-label="Páginas">
+    <div class="notes-pane-header">
+      <div>
+        <button class="back-btn" id="back-to-shelf" type="button">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M15 18l-6-6 6-6"/></svg>
+          Cuadernos
+        </button>
+        <h2 id="notes-pane-title">Selecciona un cuaderno</h2>
+        <p class="notes-pane-sub" id="notes-pane-sub"></p>
+      </div>
+      <button class="icon-btn primary" id="btn-new-note" title="Nueva página" aria-label="Nueva página" disabled>
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+    <div class="notes-list" id="notes-list"></div>
+  </section>
+
+  <!-- PÁGINA: editor de la nota -->
+  <main class="page-pane" aria-label="Página de apuntes">
+    <div class="page-pane-empty" id="page-empty">
+      <div class="empty-illustration" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><rect x="24" y="14" width="72" height="92" rx="6" fill="none" stroke="currentColor" stroke-width="3"/><path d="M38 38h44M38 52h44M38 66h30" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      </div>
+      <p>Elige una página o crea una nueva para empezar a escribir.</p>
+    </div>
+
+    <div class="page-editor" id="page-editor" hidden>
+      <header class="page-toolbar">
+        <button class="back-btn" id="back-to-notes" type="button" style="flex-basis:100%">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M15 18l-6-6 6-6"/></svg>
+          Páginas
+        </button>
+        <input type="text" id="note-title" class="note-title-input" placeholder="Título de la página" />
+
+        <div class="toolbar-actions">
+          <button class="tb-btn" data-cmd="bold" title="Negrita (⌘B)"><svg viewBox="0 0 24 24"><path d="M7 5h6a3.5 3.5 0 010 7H7zM7 12h7a3.5 3.5 0 010 7H7z"/></svg></button>
+          <button class="tb-btn" data-cmd="italic" title="Cursiva (⌘I)"><svg viewBox="0 0 24 24"><path d="M11 5h6M7 19h6M14 5L10 19"/></svg></button>
+          <button class="tb-btn" data-cmd="underline" title="Subrayado (⌘U)"><svg viewBox="0 0 24 24"><path d="M6 4v7a6 6 0 0012 0V4M5 20h14"/></svg></button>
+          <span class="tb-sep"></span>
+          <button class="tb-btn" id="btn-insert-image" title="Insertar imagen">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5.5-5.5L9 17"/></svg>
+          </button>
+          <input type="file" id="image-input" accept="image/*" hidden />
+          <span class="tb-sep"></span>
+          <label class="line-height-control" title="Altura de las líneas">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+            <input type="range" id="line-height-range" min="24" max="56" step="2" value="32" />
+          </label>
+          <span class="tb-sep"></span>
+          <button class="tb-btn danger" id="btn-delete-note" title="Eliminar página">
+            <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-9 0l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="save-status" id="save-status" aria-live="polite">Guardado</div>
+
+      <div class="paper-wrap">
+        <div class="paper" id="paper">
+          <div class="paper-margin" aria-hidden="true"></div>
+          <div class="paper-content" id="note-content" contenteditable="true" spellcheck="true" data-placeholder="Escribe aquí…"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- Modal genérico de confirmación / formulario -->
+<div class="modal-overlay" id="modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3 id="modal-title">Título</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="db.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
