@@ -4,6 +4,8 @@
   'use strict';
 
   const NOTEBOOK_COLORS = ['#3B6E68', '#7A4A42', '#B08A3E', '#47536B', '#6B4763', '#5B6B45'];
+  const HIGHLIGHT_COLORS = ['#FDE68A', '#BBF7D0', '#BFDBFE', '#FBCFE8', '#FED7AA', '#E9D5FF', '#FCA5A5'];
+  const TEXT_COLORS = ['#2B2620', '#A6483F', '#3B6E68', '#47536B', '#B08A3E', '#6B4763', '#5B6B45'];
 
   // ---------- Estado ----------
   const state = {
@@ -37,6 +39,10 @@
     btnDeleteNote: document.getElementById('btn-delete-note'),
     btnInsertImage: document.getElementById('btn-insert-image'),
     imageInput: document.getElementById('image-input'),
+    btnHighlight: document.getElementById('btn-highlight'),
+    btnTextColor: document.getElementById('btn-text-color'),
+    colorPopover: document.getElementById('color-popover'),
+    colorPopoverSwatches: document.getElementById('color-popover-swatches'),
 
     btnExport: document.getElementById('btn-export'),
     btnImport: document.getElementById('btn-import'),
@@ -422,6 +428,70 @@
     btn.addEventListener('click', () => {
       el.noteContent.focus();
       document.execCommand(btn.dataset.cmd);
+      scheduleSave();
+    });
+  });
+
+  // Evita que el editor pierda la selección de texto al pulsar
+  // cualquier botón de la barra de herramientas.
+  document.querySelectorAll('.tb-btn').forEach((btn) => {
+    btn.addEventListener('mousedown', (e) => e.preventDefault());
+  });
+
+  // ---------- Resaltar texto / color de letra ----------
+  function closeColorPopover() {
+    el.colorPopover.hidden = true;
+    document.removeEventListener('mousedown', onOutsideColorClick, true);
+  }
+  function onOutsideColorClick(e) {
+    if (!el.colorPopover.contains(e.target)) closeColorPopover();
+  }
+
+  function openColorPopover(anchorBtn, colors, onPick) {
+    el.colorPopoverSwatches.innerHTML = '';
+
+    const noneSwatch = document.createElement('span');
+    noneSwatch.className = 'cp-swatch none';
+    noneSwatch.title = 'Quitar color';
+    noneSwatch.addEventListener('mousedown', (e) => e.preventDefault());
+    noneSwatch.addEventListener('click', () => { onPick(null); closeColorPopover(); });
+    el.colorPopoverSwatches.appendChild(noneSwatch);
+
+    colors.forEach((c) => {
+      const sw = document.createElement('span');
+      sw.className = 'cp-swatch';
+      sw.style.background = c;
+      sw.title = c;
+      sw.addEventListener('mousedown', (e) => e.preventDefault());
+      sw.addEventListener('click', () => { onPick(c); closeColorPopover(); });
+      el.colorPopoverSwatches.appendChild(sw);
+    });
+
+    const rect = anchorBtn.getBoundingClientRect();
+    el.colorPopover.hidden = false;
+    const top = rect.bottom + 6;
+    const left = Math.min(rect.left, window.innerWidth - 150);
+    el.colorPopover.style.top = top + 'px';
+    el.colorPopover.style.left = Math.max(8, left) + 'px';
+
+    setTimeout(() => document.addEventListener('mousedown', onOutsideColorClick, true), 0);
+  }
+
+  el.btnHighlight.addEventListener('click', () => {
+    openColorPopover(el.btnHighlight, HIGHLIGHT_COLORS, (color) => {
+      el.noteContent.focus();
+      document.execCommand('styleWithCSS', false, true);
+      const cmd = document.queryCommandSupported('hiliteColor') ? 'hiliteColor' : 'backColor';
+      document.execCommand(cmd, false, color || 'transparent');
+      scheduleSave();
+    });
+  });
+
+  el.btnTextColor.addEventListener('click', () => {
+    openColorPopover(el.btnTextColor, TEXT_COLORS, (color) => {
+      el.noteContent.focus();
+      document.execCommand('styleWithCSS', false, true);
+      document.execCommand('foreColor', false, color || '#2B2620');
       scheduleSave();
     });
   });

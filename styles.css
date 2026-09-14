@@ -441,6 +441,53 @@ svg {
   margin: 0 4px;
 }
 
+.tb-letter-icon {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ---------- Popover de colores (resaltado / letra) ---------- */
+.color-popover {
+  position: fixed;
+  background: #fdfbf6;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(33, 31, 29, 0.28);
+  padding: 10px;
+  z-index: 70;
+  animation: fade-in 0.1s ease;
+}
+.color-popover[hidden] { display: none; }
+
+.color-popover-swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 26px);
+  gap: 8px;
+}
+
+.cp-swatch {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  display: block;
+}
+.cp-swatch:hover { transform: scale(1.1); }
+
+.cp-swatch.none {
+  background: #fff;
+  border: 1.5px solid #d8cdb4;
+  position: relative;
+}
+.cp-swatch.none::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: linear-gradient(to top right, transparent 46%, var(--danger) 48%, var(--danger) 52%, transparent 54%);
+}
+
 .line-height-control {
   display: flex;
   align-items: center;
